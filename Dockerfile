@@ -25,6 +25,11 @@ RUN add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download
 RUN apt update && apt-cache policy docker-ce && apt-get install -y docker-ce docker-ce-cli containerd.io
 #RUN apt update && apt-cache policy virtualbox && apt install -y docker-ce dkms virtualbox-6.0
 
+###sudo apt install virtualbox-5.1
+###sudo apt-get --reinstall install virtualbox-dkms
+###wget https://download.virtualbox.org/virtualbox/5.1.34/Oracle_VM_VirtualBox_Extension_Pack-5.1.34.vbox-extpack
+###sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.34.vbox-extpack 
+
 # Please also use version 5.2 if you still need support for 32-bit hosts, as this has been discontinued in 6.0. Version 5.2 will remain supported until July 2020. 
 #RUN apt update && apt install dkms linux-headers-generic binfmt-support && virtualbox-5.2
 # Please also use version 6.0 if you need to run VMs with software virtualization, as this has been discontinued in 6.1. Version 6.0 will remain supported until July 2020.
