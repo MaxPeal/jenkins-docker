@@ -4,13 +4,25 @@ USER root
 
 RUN apt update && apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
-RUN add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
+#RUN add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
+RUN add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" --yes
+install(){
+    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" --yes
+    sudo apt-get --yes install virtualbox-6.0
+}
+uninstall(){
+    apt-get purge virtualbox virtualbox-* -y
+    sudo add-apt-repository --remove --yes "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
+    apt-get autoremove --purge -y
+}
 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
-RUN apt update && apt-cache policy docker-ce && apt install -y docker-ce dkms virtualbox-5.0
+RUN curl -fsSL https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - && add-apt-repository "deb [arch=amd64] https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
+#RUN apt update && apt-cache policy docker-ce && apt install -y docker-ce dkms virtualbox-5.0
+RUN apt update && apt-cache policy docker-ce && apt install -y docker-ce dkms virtualbox-6.0
 
 RUN curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 
