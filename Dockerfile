@@ -1,9 +1,9 @@
 FROM jenkins/jenkins:lts
 
 USER root
-# VER=$(shell dpkg-parsechangelog --show-field Version)
-# REL=$(shell lsb_release -rsu || lsb_release -rs)
-# CDN=$(shell lsb_release -csu || lsb_release -cs)
+# VER=$(dpkg-parsechangelog --show-field Version 2> /dev/null )
+# REL=$(lsb_release -rsu 2> /dev/null || lsb_release -rs 2> /dev/null )
+# CDN=$(lsb_release -csu 2> /dev/null || lsb_release -cs 2> /dev/null )
 
 RUN apt update && apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 # see https://www.virtualbox.org/wiki/Linux_Downloads
