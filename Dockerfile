@@ -1,9 +1,12 @@
 FROM jenkins/jenkins:lts
 
 USER root
+# VER=$(shell dpkg-parsechangelog --show-field Version)
+# REL=$(shell lsb_release -rsu || lsb_release -rs)
+# CDN=$(shell lsb_release -csu || lsb_release -cs)
 
 RUN apt update && apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-
+# see https://www.virtualbox.org/wiki/Linux_Downloads
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
 #RUN add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
@@ -36,3 +39,11 @@ RUN curl -L https://github.com/docker/compose/releases/latest/download/docker-co
 RUN curl -L https://github.com/docker/machine/releases/latest/download/docker-machine-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-machine && chmod +x /usr/local/bin/docker-machine
 
 USER jenkins
+
+
+# clean up  
+RUN sudo apt-get clean && \  
+sudo rm -rf /var/lib/apt/lists/*  
+  
+# automatically start virtualbox  
+##ENTRYPOINT ["/usr/bin/virtualbox"]  
