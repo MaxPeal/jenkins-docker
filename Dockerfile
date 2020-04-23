@@ -10,10 +10,15 @@ RUN apt update && apt install -y apt-transport-https ca-certificates curl gnupg2
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
 RUN wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
 #RUN add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
-RUN add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" --yes
+#work but arch is static RUN add-apt-repository "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" --yes
+RUN add-apt-repository "deb [arch=$(dpkg --print-architecture)] http://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib non-free" --yes
 
 RUN curl -fsSL https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]')/gpg | apt-key add - 
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
+###amd64 arm64 armhf ppc64el s390x
+# see https://wiki.debian.org/Multiarch/HOWTO
+# not work fully RUN add-apt-repository "deb [arch=amd64,i386,arm64,armhf,ppc64el,s390x] https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
+RUN add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
+#work but static RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/$(uname -s | tr '[:upper:]' '[:lower:]')/$(lsb_release -si | tr '[:upper:]' '[:lower:]') $(lsb_release -cs) stable"
 #RUN apt update && apt-cache policy docker-ce && apt install -y docker-ce dkms virtualbox-5.0
 #RUN apt update && apt-cache policy docker-ce && apt install -y docker-ce dkms virtualbox-6.0
 #RUN apt update && apt-cache policy docker-ce && apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose
@@ -24,7 +29,13 @@ RUN apt update && apt-cache policy docker-ce && apt-get install -y docker-ce doc
 #RUN apt update && apt install dkms linux-headers-generic binfmt-support && virtualbox-5.2
 # Please also use version 6.0 if you need to run VMs with software virtualization, as this has been discontinued in 6.1. Version 6.0 will remain supported until July 2020.
 #RUN apt update && apt install dkms linux-headers-generic binfmt-support && virtualbox-6.0
-RUN apt update && apt install dkms linux-headers-generic binfmt-support && virtualbox-6.1
+RUN apt update && apt install dkms linux-headers-`uname -r` binfmt-support && virtualbox-6.1
+# Configure kernel modules
+#/etc/init.d/vboxdrv setup
+
+#get source file releases/latest zip # wget https://github.com/$(wget https://github.com/docker/compose/releases/latest -O - | egrep '/.*/.*/.*zip' -o)
+#get source file releases/latest tar.gz # wget https://github.com/$(wget https://github.com/dylanaraps/neofetch/releases/latest -O - | egrep '/.*/.*/.*tar.gz' -o) -O neofetch-releases-latest.tar.gz
+wget https://github.com/$(wget https://github.com/dylanaraps/neofetch/releases/latest -O - | egrep '/.*/.*/.*tar.gz' -o) -O neofetch-releases-latest.tar.gz
 
 #RUN curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
 #RUN curl -L https://github.com/docker/compose/releases/download/last/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose
@@ -40,10 +51,8 @@ RUN curl -L https://github.com/docker/machine/releases/latest/download/docker-ma
 
 USER jenkins
 
-
 # clean up  
 RUN sudo apt-get clean && \  
-sudo rm -rf /var/lib/apt/lists/*  
-  
+sudo rm -rf /var/lib/apt/lists/*
 # automatically start virtualbox  
 ##ENTRYPOINT ["/usr/bin/virtualbox"]  
